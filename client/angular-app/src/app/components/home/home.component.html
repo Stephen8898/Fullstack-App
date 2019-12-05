@@ -1,0 +1,5 @@
+<input #query (keyup.enter)="onEnter(query.value)" type="search" placeholder="search here..." style="margin: 10px">
+<button type="submit" class="btn btn-primary" (click)="onEnter(query.value)" style="margin: 5px">search</button>
+<div>
+<app-news-info-modal></app-news-info-modal>
+</div>
