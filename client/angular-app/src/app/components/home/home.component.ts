@@ -9,24 +9,35 @@ import { ApiService} from "../../services/api.service"
 })
 export class HomeComponent implements OnInit {
 
-  value: String = ""
+  value: String = "";
   items: Object [] = [];
+
 
   constructor(private api: ApiService) { }
 
   ngOnInit() {
   }
-  onEnter(search: String): void{
+  onEnter(search: String): void {
     this.value = search;
-    console.log(this.value);
     let data = this.api.searchNewsData(this.value);
-    data.then(res =>{
+    data.then(res => {
       res.result.map(articles => {
         this.items.push(articles);
       });
-      console.log(this.items);
+      console.log(this.items.length);
     });
+    this.deleteList(this.items);
+  }
 
+  deleteList(list): void {
+      let size: number = list.length;
+      if (size > 0){
+        while(size > 0){
+          this.items.pop();
+          size--;
+        }
+      }
+      console.log(size);
   }
 
 

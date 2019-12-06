@@ -43,9 +43,7 @@ export class NewsInfoModalComponent implements OnInit {
     this.titles = item.title;
     this.siteLinks = item.siteLink;
     this.images = item.image;
-    this.descriptions = item.description;
-
-    
+    this.descriptions = item.description; 
   }
   
 
