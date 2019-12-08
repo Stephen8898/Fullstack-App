@@ -1,2 +1,1 @@
-nodemon ./send.js
-nodemon ./receive.js
+nodemon ./new_task.js & nodemon ./worker.js
