@@ -26,7 +26,7 @@ export class HomeComponent implements OnInit {
       });
       console.log(this.items.length);
     });
-    this.deleteList(this.items);
+    this.deleteList(this.items); 
   }
 
   deleteList(list): void {

@@ -7,15 +7,17 @@ const mongoose = require('mongoose');
 const config = require('./config/database');
 
 //connecting our mongodb database
-mongoose.connect(config.database, {useNewUrlParser: true,  useUnifiedTopology: true});
+mongoose.connect(config.database, {useNewUrlParser: true,  useUnifiedTopology: true,  useCreateIndex: true});
 
 //on connection to indicate if database connection is on
 mongoose.connection.on('connected', ()=> {
     console.log(`connected to database ${config.database}`)
 });
 
+
 const users = require('./routes/api/users');
 const news = require('./routes/api/newsApi');
+const post = require('./routes/api/posts');
 
 const app = express();
 
@@ -25,8 +27,9 @@ const port  = 3000;
 //Cors Middleware
 app.use(cors());
 
-// Body parser middleware -- does some magic to handle json parsing of the req.body
+// Body parser middleware -- does somae magic to handle json parsing of the req.body
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
 
 //passport middleware
 app.use(passport.initialize());
@@ -38,11 +41,9 @@ require('./config/passport')(passport);
 //Sattic folders from client side application
 app.use(express.static(path.join(__dirname, 'client')));
 
-
 //users route
 app.use('/api/users', users);
-
-
+app.use('/api/post', post);
 app.use('/api', news);
 
 // Index routes

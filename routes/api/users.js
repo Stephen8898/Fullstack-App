@@ -2,9 +2,11 @@ const express = require('express');
 const route = express.Router();
 const passport = require('passport');
 const jwt  = require('jsonwebtoken');
-const config = require('../../config/database')
+const config = require('../../config/database');
 
-const User = require('../../models/user')
+const Post = require('../../models/Post');
+const Profile = require('../../models/Profile');
+const User = require('../../models/User');
 
 //register
 route.post('/register', (req, res, next) => {
@@ -12,16 +14,24 @@ route.post('/register', (req, res, next) => {
         name: req.body.name,
         email: req.body.email,
         username: req.body.username,
-        password: req.body.password
+        password: req.body.password,
     });
+
     //add user function
     User.addUser(newUser, (err, user) => {
         if(err){
-            res.json({success: false, msg: 'Failed to register user'})
+            res.status(400).json({success: false, msg: 'Failed to register user'})
         } else{
-            res.json({success: true, msg: 'User successfully Signed up'})
+
+        let profile = new Profile({
+            user_id: newUser._id,
+            contact: {email: {type: 'Email', value: newUser.email}}
+        });
+            profile.save();
+            res.status(200).json({success: true, msg: 'User successfully Signed up'})
         }
     });
+
 
 });
 
@@ -33,7 +43,7 @@ route.post('/authenticate', (req, res, next) => {
    User.getByUserEmail(email, (err, user) => {
        if (err) throw err;
        if(!user){
-           res.json({success: false, msg: 'User does not exist'});
+           res.status(404).json({success: false, msg: 'User does not exist'});
        }
 
         //compares the password
@@ -41,8 +51,9 @@ route.post('/authenticate', (req, res, next) => {
             if (err) throw err;
             if(isMatch){
                 const token = jwt.sign(user.toJSON(), config.secret, {
-                    expiresIn: 3000 //  seconds
+                    expiresIn: 3600 
                 });
+    
                 return res.json({
                     success: true,
                     token: 'JWT' + token,
@@ -50,19 +61,41 @@ route.post('/authenticate', (req, res, next) => {
                         id: user._id,
                         name: user.name,
                         username: user.username,
-                        email: user.email
+                        email: user.email,
                     }
                 });
             } else {
                 return res.json({success: false, msg: 'Wrong password'})
             }
-       })
-   })
+       });
+
+    
+   });
 });
 
 //Profile
-route.get('/profile', passport.authenticate('jwt', {session: false}),(req, res, next) => {
-    res.json({user: req.user})
+route.get('/profile', passport.authenticate('jwt', {session: false}),(req, res, next) => {  
+    Profile.findOne({user_id:req.user._id}, (err, profile)=>{
+        if (err) throw err;
+        else {
+            Post.find({profile: profile._id}).select('_id')
+            .then(data => {
+                profile.post = data.map((post) => {
+                    if (profile.post.indexOf(post._id) === -1){
+                        profile.post.push(post._id);
+                        profile.save()
+                        .then(data => console.log(data))
+                        .catch(err => next(err))
+                    } 
+                        return post._id
+                });
+
+                res.status(200).json({profile});
+            })
+            .catch(err => console.log(err))
+        }
+    });
+    
 });
 
 //Validate

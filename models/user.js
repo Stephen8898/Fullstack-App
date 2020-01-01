@@ -1,21 +1,26 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const config = require('../config/database');
+const Post = require('./Post');
+const Schema = mongoose.Schema;
+const ProfileSchema = require('./Profile');
 
 //User Schema
-const UserSchema = mongoose.Schema({
-
+const UserSchema = Schema({
     name: {
-        type: String
+        type: String,
+        required: true
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
 
     username:{
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
 
     password: {
@@ -23,18 +28,15 @@ const UserSchema = mongoose.Schema({
         required: true
     }
 
-    
-
-
 });
 
+delete mongoose.connection.models['User'];
 const User = module.exports = mongoose.model('User', UserSchema);
 
 //Get user by id
 module.exports.getUserById = function(id, callback){
     User.findById(id, callback);
 }
-
 
 //Get user by email
 module.exports.getByUserEmail = function(email, callback){
@@ -58,10 +60,25 @@ module.exports.addUser = function(newUser, callback) {
    });
   
 }
+// User.findById().pop
 
 module.exports.comparePassword = function(userPassword, hash, callback) {
     bcrypt.compare(userPassword, hash, (err, isMatch) => {
         if (err) throw err;
         callback(null, isMatch);
     });
+module.exports.userExist = function(newUser, callback){
+    
+}
+
+module.exports.getPostByProfileAndUser = function(){
+
+}
+
+module.exports.submitPostByProfile = function(){
+
+}
+// module.exports.getUserPosts = function(query, callback){
+//     const query = {user}
+//     }
 }
