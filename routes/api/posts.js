@@ -64,7 +64,7 @@ route.put('/update/:post_id/', (req, res) => {
 
 route.delete('/delete/:post_id/', (req, res) => {
 
-    Post.findById(req.params.post_id).remove()
+    Post.deleteOne(req.params.post_id)
     .then(data => {
         res.status(200).json({success: true, data: data});
     })

@@ -1,4 +1,8 @@
+#dependancies
 /node_modules
 
 #Enviroment variables
 env.js
+
+#files
+/images

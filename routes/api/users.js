@@ -3,6 +3,7 @@ const route = express.Router();
 const passport = require('passport');
 const jwt  = require('jsonwebtoken');
 const config = require('../../config/database');
+const fileUpload = require('../../config/filestorage');
 
 const Post = require('../../models/Post');
 const Profile = require('../../models/Profile');
@@ -51,7 +52,7 @@ route.post('/authenticate', (req, res, next) => {
             if (err) throw err;
             if(isMatch){
                 const token = jwt.sign(user.toJSON(), config.secret, {
-                    expiresIn: 3600 
+                    expiresIn: 5000
                 });
     
                 return res.json({
@@ -97,6 +98,56 @@ route.get('/profile', passport.authenticate('jwt', {session: false}),(req, res, 
     });
     
 });
+
+route.put('/profile/update/:profile_id', (req, res) => {
+
+    let update = {
+        contact: req.body.contact,
+        about: req.body.about
+    };
+
+    Profile.findByIdAndUpdate(req.params.profile_id, update)
+    .then(data => {
+        res.status(200).json({success: true, data: data});
+    })
+    .catch(err => {
+        res.status(400).json({success: false, msg: err});
+    });
+    
+});
+
+route.put('/profile/upload/:profile_id', fileUpload.single('profileImg'),(req, res) => {
+    try{
+        let update = {profileImg : req.file.path};
+
+
+        Profile.findByIdAndUpdate(req.params.profile_id, update)
+        .then(data => {
+            res.status(200).json({success: true, data: data.profileImg});
+        })
+        .catch(err => {
+            res.status(400).json({success: false, msg: err});
+        })
+    }
+    catch(err){
+        res.json({msg:err})
+    }
+});
+
+// route.post('/profile/:profile_id/follow/:user_id', (req, res)=> {
+//     Profile.findOne({_id:req.params.profile_id}, (err, profile)=>{
+//         if (err) throw err;
+//         else {
+//             Profile.find({user_id: req.params.user_id}).select('user_id')
+//             .then(data => {
+//                 profile.following = follow
+//             })
+//             .catch(err => {
+
+//             })
+//         }
+//     });
+// });
 
 //Validate
 route.get('/validate', (req, res, next) => {

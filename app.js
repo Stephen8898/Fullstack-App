@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const config = require('./config/database');
 
 //connecting our mongodb database
-mongoose.connect(config.database, {useNewUrlParser: true,  useUnifiedTopology: true,  useCreateIndex: true});
+mongoose.connect(config.database, {useNewUrlParser: true,  useUnifiedTopology: true,  useCreateIndex: true, useFindAndModify: false});
 
 //on connection to indicate if database connection is on
 mongoose.connection.on('connected', ()=> {
@@ -16,7 +16,7 @@ mongoose.connection.on('connected', ()=> {
 
 
 const users = require('./routes/api/users');
-const news = require('./routes/api/newsApi');
+// const news = require('./routes/api/newsApi');
 const post = require('./routes/api/posts');
 
 const app = express();
@@ -40,11 +40,12 @@ require('./config/passport')(passport);
 
 //Sattic folders from client side application
 app.use(express.static(path.join(__dirname, 'client')));
+app.use('/images', express.static('images'));
 
 //users route
 app.use('/api/users', users);
 app.use('/api/post', post);
-app.use('/api', news);
+// app.use('/api', news);
 
 // Index routes
 app.get('/', (req, res) =>{
